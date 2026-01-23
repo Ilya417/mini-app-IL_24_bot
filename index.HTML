@@ -3,76 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ИЛ24 Support</title>
+    <title>ИЛ-24</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         :root {
-            --bg: var(--tg-theme-bg-color, #f5f5f5);
-            --text: var(--tg-theme-text-color, #222);
-            --sec-bg: var(--tg-theme-secondary-bg-color, #ffffff);
-            --btn: var(--tg-theme-button-color, #3390ec);
-            --btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --bg: #000428;
+            --glass: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
         }
-        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; transition: all 0.3s; }
-        .card { background: var(--sec-bg); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        input, textarea { background: var(--bg); color: var(--text); border: 1px solid rgba(0,0,0,0.1); width: 100%; border-radius: 8px; padding: 10px; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: var(--text);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+        }
+
+        /* Шапка */
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        /* Контент */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Стеклянные карточки */
+        .card {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        h2, h3 { margin: 0 0 10px 0; color: var(--primary); }
+        p { margin: 0; font-size: 14px; line-height: 1.6; opacity: 0.9; }
+
+        /* Поле ввода */
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
+
+        /* Кнопка */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        /* Навигация */
+        .nav {
+            height: 70px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            display: flex;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            transition: 0.3s;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-item span { font-size: 24px; }
+        .nav-item label { font-size: 10px; margin-top: 4px; font-weight: bold; }
     </style>
 </head>
-<body class="p-4">
-    <div id="app" class="animate__animated animate__fadeIn">
-        <div class="card p-4 mb-4 animate__animated animate__slideInLeft">
-            <h2 id="n-title" class="font-bold text-blue-500 mb-1 italic text-lg uppercase tracking-tight">Загрузка...</h2>
-            <p id="n-text" class="text-sm opacity-80 mb-2"></p>
-            <span id="n-date" class="text-[10px] opacity-40"></span>
+<body>
+
+    <div class="header">IL24 PREMIUM APP</div>
+
+    <div class="content">
+        <div id="news" class="tab-content active">
+            <div class="card">
+                <div class="badge">Новости</div>
+                <h3 id="news-title">Система готова!</h3>
+                <p id="news-text">Добро пожаловать в обновленный сервис техподдержки ИЛ24.</p>
+                <div id="news-date" style="margin-top: 15px; font-size: 11px; opacity: 0.5;"></div>
+            </div>
+            <div class="card" style="opacity: 0.6; transform: scale(0.95);">
+                <h3>Архив</h3>
+                <p>Здесь будут отображаться предыдущие уведомления.</p>
+            </div>
         </div>
 
-        <div class="card p-4 animate__animated animate__slideInUp animate__delay-1s">
-            <h3 class="font-bold mb-3">🧔 Поддержка ИЛ24</h3>
-            <div class="space-y-3">
-                <input type="text" id="subj" placeholder="Тема (например, Ноутбук)">
-                <textarea id="msg" rows="4" placeholder="Опишите проблему..."></textarea>
-                <button onclick="send()" id="main-btn" class="w-full font-bold p-3 rounded-xl shadow-lg transition-transform active:scale-95">
-                    ОТПРАВИТЬ МАСТЕРУ
-                </button>
+        <div id="support" class="tab-content">
+            <div class="card">
+                <h3>Запрос мастеру</h3>
+                <p style="margin-bottom: 15px;">Опишите вашу проблему, и дежурный мастер сразу получит уведомление.</p>
+                <textarea id="support-msg" rows="5" placeholder="Напишите здесь..."></textarea>
+                <button class="btn" onclick="sendToBot()">ОТПРАВИТЬ ТИКЕТ</button>
             </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item active" onclick="switchTab('news', this)">
+            <span>📰</span>
+            <label>НОВОСТИ</label>
+        </div>
+        <div class="nav-item" onclick="switchTab('support', this)">
+            <span>🧔</span>
+            <label>МАСТЕР</label>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
         tg.expand();
+        tg.headerColor = '#000428';
 
-        // Настройка кнопки
-        const btn = document.getElementById('main-btn');
-        btn.style.backgroundColor = "var(--btn)";
-        btn.style.color = "var(--btn-text)";
+        // Получаем новости из URL, которые передает бот
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('news_title')) {
+            document.getElementById('news-title').innerText = params.get('news_title');
+            document.getElementById('news-text').innerText = params.get('news_text');
+            document.getElementById('news-date').innerText = "Опубликовано: " + params.get('news_date');
+        }
 
-        // Парсинг данных из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        document.getElementById('n-title').innerText = urlParams.get('news_title') || "ИЛ24 Новости";
-        document.getElementById('n-text').innerText = urlParams.get('news_text') || "Здесь появятся важные обновления.";
-        document.getElementById('n-date').innerText = urlParams.get('news_date') || "";
-
-        function send() {
-            const s = document.getElementById('subj').value;
-            const m = document.getElementById('msg').value;
+        function switchTab(id, el) {
+            // Переключение вкладок
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
-            if(!s || !m) {
-                tg.HapticFeedback.notificationOccurred('error');
-                alert("Заполните все поля!");
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+            
+            // Легкая вибрация при нажатии
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        function sendToBot() {
+            const msg = document.getElementById('support-msg').value;
+            if(msg.length < 5) {
+                tg.showAlert("Пожалуйста, опишите проблему подробнее!");
                 return;
             }
-
-            const payload = JSON.stringify({type: "ticket", subject: s, message: m});
-            
-            // Пытаемся отправить данные боту
-            tg.sendData(payload);
-            // Если WebApp открыт через Inline кнопку, sendData может не закрыть окно,
-            // поэтому принудительно закрываем его через 100мс
-            setTimeout(() => { tg.close(); }, 150);
+            // Отправляем данные боту и закрываем окно
+            tg.sendData("SUPPORT_REQUEST:" + msg);
+            tg.close();
         }
     </script>
 </body>
